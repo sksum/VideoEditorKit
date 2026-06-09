@@ -237,14 +237,30 @@ extension ThumbnailsSliderView {
             timelineSurface(size)
 
             if let video {
+                // When both minimum and maximum are the same, enforce fixed duration
+                let effectiveMinimumDistance: Double
+                let effectiveMaximumDistance: Double?
+
+                if let minDuration = minimumSelectionDuration,
+                   let maxDuration = maximumSelectionDuration,
+                   abs(minDuration - maxDuration) < 0.001 {
+                    // Fixed duration mode - both min and max are the same
+                    effectiveMinimumDistance = minDuration
+                    effectiveMaximumDistance = maxDuration
+                } else {
+                    // Normal mode
+                    effectiveMinimumDistance = minimumSelectionDuration ?? EditorPlaybackEditingCoordinator.minimumTrimDuration(
+                        for: video.originalDuration
+                    )
+                    effectiveMaximumDistance = maximumSelectionDuration
+                }
+
                 RangedSliderView(
                     $rangeDuration,
                     bounds: 0...video.originalDuration,
                     step: 0.001,
-                    minimumDistance: minimumSelectionDuration ?? EditorPlaybackEditingCoordinator.minimumTrimDuration(
-                        for: video.originalDuration
-                    ),
-                    maximumDistance: maximumSelectionDuration,
+                    minimumDistance: effectiveMinimumDistance,
+                    maximumDistance: effectiveMaximumDistance,
                     onStartChange: beginTrimRangeInteraction,
                     onEndChange: commitRangeChange
                 )
