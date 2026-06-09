@@ -31,6 +31,7 @@ struct VideoEditorTrimSectionView: View {
                 video: $bindableEditorViewModel.currentVideo,
                 isPlaying: videoPlayer.isPlaying,
                 isChangeState: video.isAppliedTool(for: .cut),
+                minimumSelectionDuration: editorViewModel.minimumTrimDuration(for: video),
                 maximumSelectionDuration: editorViewModel.maximumTrimDuration(for: video),
                 onPlayPauseTapped: handlePlayPauseTap,
                 onChangeTimeValue: handleTrimRangeChange,

@@ -116,6 +116,9 @@ public struct VideoEditorView: View {
                 videoPlayer: videoPlayer
             )
         }
+        .onChange(of: configuration.fixedTrimDuration) { _, newValue in
+            editorViewModel.setFixedTrimDuration(newValue)
+        }
     }
 
     // MARK: - Private Properties
@@ -184,28 +187,32 @@ public struct VideoEditorView: View {
 
     @ViewBuilder
     private var saveToolbarAction: some View {
-        let presentation = Self.manualSaveActionPresentation(
-            hasLoadedVideo: editorViewModel.currentVideo != nil,
-            hasUnsavedChanges: manualSaveCoordinator.hasUnsavedChanges,
-            isSaving: manualSaveCoordinator.isSaving
-        )
+        if configuration.hidePrimaryAction {
+            EmptyView()
+        } else {
+            let presentation = Self.manualSaveActionPresentation(
+                hasLoadedVideo: editorViewModel.currentVideo != nil,
+                hasUnsavedChanges: manualSaveCoordinator.hasUnsavedChanges,
+                isSaving: manualSaveCoordinator.isSaving
+            )
 
-        if presentation != .hidden {
-            Button(action: saveCurrentEdit) {
-                Group {
-                    if presentation == .loading {
-                        ProgressView()
-                            .controlSize(.small)
-                            .tint(.white)
-                    } else {
-                        Image(systemName: presentation.systemImageName)
+            if presentation != .hidden {
+                Button(action: saveCurrentEdit) {
+                    Group {
+                        if presentation == .loading {
+                            ProgressView()
+                                .controlSize(.small)
+                                .tint(.white)
+                        } else {
+                            Image(systemName: presentation.systemImageName)
+                        }
                     }
+                    .foregroundStyle(.white)
                 }
-                .foregroundStyle(.white)
+                .accessibilityLabel(VideoEditorStrings.save)
+                .videoEditorToolbarActionButtonStyle(VideoEditorToolbarActionLayout.saveButtonStyle)
+                .disabled(presentation != .enabled)
             }
-            .accessibilityLabel(VideoEditorStrings.save)
-            .videoEditorToolbarActionButtonStyle(VideoEditorToolbarActionLayout.saveButtonStyle)
-            .disabled(presentation != .enabled)
         }
     }
 

@@ -232,6 +232,10 @@ public struct VideoEditorConfiguration {
     public let transcription: TranscriptionConfiguration?
     /// Optional upper bound, in seconds, for accepted source video duration.
     public let maximumVideoDuration: TimeInterval?
+    /// When true, hides the primary Save action button from the toolbar.
+    public let hidePrimaryAction: Bool
+    /// When set, forces the trim selection to exactly this duration (in seconds).
+    public let fixedTrimDuration: TimeInterval?
 
     // MARK: - Private Properties
 
@@ -251,6 +255,8 @@ public struct VideoEditorConfiguration {
         watermark: VideoWatermarkConfiguration? = nil,
         transcription: TranscriptionConfiguration? = nil,
         maximumVideoDuration: TimeInterval? = nil,
+        hidePrimaryAction: Bool = false,
+        fixedTrimDuration: TimeInterval? = nil,
         onBlockedToolTap: ((ToolEnum) -> Void)? = nil,
         onBlockedExportQualityTap: ((VideoQuality) -> Void)? = nil
     ) {
@@ -276,6 +282,8 @@ public struct VideoEditorConfiguration {
         self.maximumVideoDuration = Self.normalizedMaximumVideoDuration(
             maximumVideoDuration
         )
+        self.hidePrimaryAction = hidePrimaryAction
+        self.fixedTrimDuration = fixedTrimDuration
         self.onBlockedToolTap = onBlockedToolTap
         self.onBlockedExportQualityTap = onBlockedExportQualityTap
     }

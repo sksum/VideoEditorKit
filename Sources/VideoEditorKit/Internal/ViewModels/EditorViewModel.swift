@@ -112,6 +112,7 @@ final class EditorViewModel {
     private var lastPlayerContainerSize = CGSize(width: 1, height: 220)
     private var lastThumbnailDisplayScale: CGFloat = 1
     private var maximumVideoDuration: Double?
+    private var fixedTrimDuration: Double?
     private var pendingEditingConfiguration: VideoEditingConfiguration?
     private var preferredTranscriptLocale: String?
     private var transcriptAvailabilityError: TranscriptError?
@@ -225,6 +226,42 @@ final class EditorViewModel {
             originalDuration: video.originalDuration,
             maximumDuration: maximumVideoDuration
         )
+    }
+
+    func setFixedTrimDuration(_ fixedTrimDuration: Double?) {
+        let normalizedFixedDuration = EditorDurationLimitCoordinator.normalizedMaximumDuration(
+            fixedTrimDuration
+        )
+
+        guard self.fixedTrimDuration != normalizedFixedDuration else {
+            return
+        }
+
+        self.fixedTrimDuration = normalizedFixedDuration
+
+        guard var currentVideo else { return }
+
+        // Apply fixed trim duration constraint
+        let previousRangeDuration = currentVideo.rangeDuration
+        EditorDurationLimitCoordinator.applyDurationLimit(
+            to: &currentVideo,
+            minimumDuration: normalizedFixedDuration,
+            maximumDuration: maximumVideoDuration
+        )
+
+        guard currentVideo.rangeDuration != previousRangeDuration else {
+            return
+        }
+
+        self.currentVideo = currentVideo
+        remapTranscriptDocumentIfNeeded()
+        markEditingConfigurationChanged()
+    }
+
+    func minimumTrimDuration(
+        for video: Video
+    ) -> Double? {
+        fixedTrimDuration
     }
 
     func refreshThumbnailsIfNeeded(

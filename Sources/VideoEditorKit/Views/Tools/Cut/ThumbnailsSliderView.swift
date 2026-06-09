@@ -26,6 +26,7 @@ struct ThumbnailsSliderView: View {
 
     private let isPlaying: Bool
     private let isChangeState: Bool?
+    private let minimumSelectionDuration: Double?
     private let maximumSelectionDuration: Double?
     private let onPlayPauseTapped: () -> Void
     private let onChangeTimeValue: (ClosedRange<Double>) -> Void
@@ -94,6 +95,7 @@ struct ThumbnailsSliderView: View {
         video: Binding<Video?>,
         isPlaying: Bool,
         isChangeState: Bool? = nil,
+        minimumSelectionDuration: Double? = nil,
         maximumSelectionDuration: Double? = nil,
         onPlayPauseTapped: @escaping () -> Void,
         onChangeTimeValue: @escaping (ClosedRange<Double>) -> Void,
@@ -114,6 +116,7 @@ struct ThumbnailsSliderView: View {
 
         self.isPlaying = isPlaying
         self.isChangeState = isChangeState
+        self.minimumSelectionDuration = minimumSelectionDuration
         self.maximumSelectionDuration = maximumSelectionDuration
         self.onPlayPauseTapped = onPlayPauseTapped
         self.onChangeTimeValue = onChangeTimeValue
@@ -238,7 +241,7 @@ extension ThumbnailsSliderView {
                     $rangeDuration,
                     bounds: 0...video.originalDuration,
                     step: 0.001,
-                    minimumDistance: EditorPlaybackEditingCoordinator.minimumTrimDuration(
+                    minimumDistance: minimumSelectionDuration ?? EditorPlaybackEditingCoordinator.minimumTrimDuration(
                         for: video.originalDuration
                     ),
                     maximumDistance: maximumSelectionDuration,

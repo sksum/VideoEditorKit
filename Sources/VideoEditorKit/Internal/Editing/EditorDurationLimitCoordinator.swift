@@ -80,4 +80,42 @@ struct EditorDurationLimitCoordinator {
         )
     }
 
+    static func applyDurationLimit(
+        to video: inout Video,
+        minimumDuration: Double?,
+        maximumDuration: Double?
+    ) {
+        let resolvedOriginalDuration = max(
+            video.originalDuration.isFinite ? video.originalDuration : 0,
+            0
+        )
+
+        guard resolvedOriginalDuration > 0 else {
+            video.rangeDuration = 0...0
+            return
+        }
+
+        let resolvedMinimumDuration = minimumDuration.flatMap { $0.isFinite && $0 > 0 ? $0 : nil }
+        let resolvedMaximumDuration = normalizedMaximumDuration(maximumDuration)
+
+        // When both minimum and maximum are the same, enforce exact duration
+        if let minimum = resolvedMinimumDuration,
+           let maximum = resolvedMaximumDuration,
+           abs(minimum - maximum) < 0.001 {
+            let fixedDuration = minimum
+            let maxLowerBound = resolvedOriginalDuration - fixedDuration
+            let lowerBound = min(video.rangeDuration.lowerBound, maxLowerBound)
+            let clampedLowerBound = max(lowerBound, 0)
+            let upperBound = min(clampedLowerBound + fixedDuration, resolvedOriginalDuration)
+            video.rangeDuration = clampedLowerBound...upperBound
+        } else {
+            // Apply normal constraints
+            video.rangeDuration = clampedTrimRange(
+                video.rangeDuration,
+                originalDuration: video.originalDuration,
+                maximumDuration: maximumDuration
+            )
+        }
+    }
+
 }
